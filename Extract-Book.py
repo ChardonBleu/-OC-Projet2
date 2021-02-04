@@ -22,8 +22,6 @@ with open("f_book.csv", "w") as fichier_book:
                         review_rating""")
 
 
-
-
 # URL d'une page des détails d'un livre
 url = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
 
@@ -50,7 +48,7 @@ info_liste = []
 for tr in Prod_Info:
     info_liste.append(tr.find("td").text)
 
-
+# Ecriture dans le fichier csv des données demandées, dans l'ordre
 with open("f_book.csv", "w") as fichier_book:
     fichier_book.write(url + ',' + 
     info_liste[0] + ',' +
@@ -61,12 +59,6 @@ with open("f_book.csv", "w") as fichier_book:
     product_description.text + ',' +
     category.text + ',' +
     info_liste[6])
-
-
-print(info_liste)
-
-
-
 
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution
