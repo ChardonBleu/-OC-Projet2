@@ -53,16 +53,17 @@ def data_one_book(url, categorie):
             info_liste.append(tr.find("td").text)
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
         with open(categorie + '.csv', "a") as fichier_book:
-            fichier_book.write(url + ' , ' + 
-            info_liste[0] + ', ' +
-            title.text.replace(',', '-') + ', ' +  # supression d'éventuelles virgules du titre
-            info_liste[3].replace('Â£', '') + ' £' + ', ' +  # mise ne forme des prix
-            info_liste[2].replace('Â£', '') + ' £' + ', ' +
-            info_liste[5] + ', ' +
-            product_description.text.replace(',', '-') + ', ' +  # suppression des virgules dans le texte (remplacées par des tirets)
-            category.text + ', ' +
-            info_liste[6] + ', ' +
-            image_url + '\n')
+            fichier_book.write(
+            url + ' , ' +                                        # url page livre
+            info_liste[0] + ', ' +                               # Numéro UPC       
+            title.text.replace(',', '-') + ', ' +                # Titre : supression d'éventuelles virgules du titre
+            info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
+            info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
+            info_liste[5] + ', ' +                               # Quantité en stock
+            product_description.text.replace(',', '-') + ', ' +  # Description - suppression virgules dans texte (remplacées par tirets)
+            category.text + ', ' +                               # Catégorie
+            info_liste[6] + ', ' +                               # review rating
+            image_url + '\n')                                    # url image livre
     
 
 

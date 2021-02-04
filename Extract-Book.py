@@ -17,6 +17,7 @@ f.Entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le ficheir csv
 url = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
 
 f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le scv de la catégorie
+time.sleep(3)
 
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution
