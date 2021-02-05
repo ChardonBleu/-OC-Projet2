@@ -15,20 +15,18 @@ cat = 'poetry'
 f.Entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le ficheir csv
 
 # URL de la page d'acceuil catégorie poetry
-url_cat = "http://books.toscrape.com/catalogue/category/books/poetry_23/index.html
-"
+url_cat = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
 # http://books.toscrape.com/catalogue/category/books/mystery_3/index.html
 # http://books.toscrape.com/catalogue/category/books/poetry_23/index.html
 # http://books.toscrape.com/catalogue/category/books/mystery_3/page-1.html
 
 # Initialisation de la lsite des url des livres pour cette catégorie
-liste_url_cat = []
+url_book_cat = []
 # Gestion des esceptions sur la requete
 valid_url, response = f.validation_url(url_cat)
 if valid_url:
     # On prépare pour analyse 
     soup_cat = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
-
     # Recherche s'il y a plusieurs pages
     Nb_page = soup_cat.find("li", {"class" : "current"})
     # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag
@@ -39,11 +37,34 @@ if valid_url:
         for i in range(1,Nb_page+1):
             # On met en forme l'url de la page i:
             url_cat_p = url_cat.replace("index.html", '') + "page-" + str(i) + ".html"
-            print(url_cat_p)
+            valid_url_p, response = f.validation_url(url_cat_p)
+            if valid_url:
+                # On prépare pour analyse 
+                soup_cat = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
+
+                # Recherche des url de chaque livre
+                book_links = soup_cat.findAll("div", {'class' : 'image_container'})
+                # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
+                for div in book_links:
+                    a = div.find('a') 
+                    url_book_cat.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
+
     else: # Si Nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
-        print(url_cat)
+
+        # Recherche des url de chaque livre
+        book_links = soup_cat.findAll("div", {'class' : 'image_container'})
+        # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
+        for div in book_links:
+            a = div.find('a') 
+            url_book_cat.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
+
+        
+    print(url_book_cat)
+    print(len(url_book_cat))
+            
         
 
+        
 
 
 # URL d'une page des détails d'un livre
