@@ -44,7 +44,6 @@ def Entete_csv_cat(fichier_csv_cat):
 def encodage(texte):
     texte = str(texte.encode(encoding="ascii", errors = "replace"))
     texte = texte.replace('b', '', 1).replace(',', ' -').replace(';', ' - ').replace('?', '*')
-
     return(texte)    
 
 

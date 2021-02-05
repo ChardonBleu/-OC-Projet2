@@ -14,14 +14,12 @@ from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilem
 os.chdir('K:/OpenClassroom/Projet2/BrouillonP2')
 
 #  création du fichier csv pour une catégorie
-cat = 'poetry'
+cat = 'mystery'
 f.Entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le ficheir csv
 
 # URL de la page d'acceuil catégorie poetry
-url_cat = "http://books.toscrape.com/catalogue/category/books/poetry_23/index.html"
-# http://books.toscrape.com/catalogue/category/books/mystery_3/index.html
-# http://books.toscrape.com/catalogue/category/books/poetry_23/index.html
-# http://books.toscrape.com/catalogue/category/books/mystery_3/page-1.html
+url_cat = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
+
 
 # Initialisation de la lsite des url des livres pour cette catégorie
 url_book_cat = []
@@ -51,11 +49,7 @@ if valid_url:
 
 # Récupération des données de tous les livres d'une catégorie
 for url in url_book_cat:
-    # URL d'une page des détails d'un livre
-    print(url)
-    print(type(url))
-
-    f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le scv de la catégorie
+    f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le fichier scv de la catégorie
     time.sleep(1)
 
 print(len(url_book_cat))
