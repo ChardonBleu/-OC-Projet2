@@ -7,10 +7,11 @@ import bs4
 
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
-
+# Gestion des exceptions sur la requête
 def validation_url(url):
-    # On gère les exceptions sur la requête
-    url_valide = False
+    # Par défaut la requête est invalidée
+    valide = False
+    # Initialisation de la réponse de la requête. Reste vide si la requête est invalidée
     resp = requests.models.Response()
     try:
         resp = requests.get(url, timeout = 3) # timeout permet d'arréter la requête si le réponse tarde trop
@@ -25,11 +26,11 @@ def validation_url(url):
         print("La page n'existe pas ou bien le serveur ne répons pas. Erreur: ", e)
     except requests.exceptions.ConnectionError: # Exception levée si il y problème de connexion au réseau
         print("La connexion au réseau a échouée")
-    else: # si le code de statut est 200 on annonce que tout s'est bien passé
+    else: # si le code de statut est 200
         if resp.ok: # le code de statut est 200
             # print("La requete s'est bien passée. Status-code: ", response.status_code )
-            url_valide = True
-    return(url_valide, resp)
+            valide = True
+    return(valide, resp)
 
 
 # Ecriture de la ligne des entête dans fichier csv 
@@ -39,6 +40,7 @@ def Entete_csv_cat(fichier_csv_cat):
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
 
 
+# Récupère les données d'un livre
 def data_one_book(url, categorie):
     valid_url, response = validation_url(url)
     if valid_url:
@@ -69,3 +71,11 @@ def data_one_book(url, categorie):
     
 
 
+def list_book_cat(soup, liste):
+    # Recherche des url de chaque livre
+    book_links = soup.findAll("div", {'class' : 'image_container'})
+    # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
+    for div in book_links:
+        a = div.find('a') 
+        liste.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
+    return(liste)

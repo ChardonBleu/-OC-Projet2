@@ -15,7 +15,7 @@ cat = 'poetry'
 f.Entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le ficheir csv
 
 # URL de la page d'acceuil catégorie poetry
-url_cat = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
+url_cat = "http://books.toscrape.com/catalogue/category/books/poetry_23/index.html"
 # http://books.toscrape.com/catalogue/category/books/mystery_3/index.html
 # http://books.toscrape.com/catalogue/category/books/poetry_23/index.html
 # http://books.toscrape.com/catalogue/category/books/mystery_3/page-1.html
@@ -41,30 +41,16 @@ if valid_url:
             if valid_url:
                 # On prépare pour analyse 
                 soup_cat = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
+                # On récupère ne liste les url des livres de cette catégorie
+                url_book_cat = f.list_book_cat(soup_cat, url_book_cat)
 
-                # Recherche des url de chaque livre
-                book_links = soup_cat.findAll("div", {'class' : 'image_container'})
-                # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
-                for div in book_links:
-                    a = div.find('a') 
-                    url_book_cat.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
 
     else: # Si Nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
-
-        # Recherche des url de chaque livre
-        book_links = soup_cat.findAll("div", {'class' : 'image_container'})
-        # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
-        for div in book_links:
-            a = div.find('a') 
-            url_book_cat.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
-
+        # On récupère ne liste les url des livres de cette catégorie
+        url_book_cat = f.list_book_cat(soup_cat, url_book_cat)
         
     print(url_book_cat)
-    print(len(url_book_cat))
-            
-        
-
-        
+    print(len(url_book_cat))        
 
 
 # URL d'une page des détails d'un livre
