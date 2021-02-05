@@ -36,14 +36,14 @@ def validation_url(url):
 # Ecriture de la ligne des entête dans fichier csv 
 def Entete_csv_cat(fichier_csv_cat):
     # Initialisatin du fichier csv des livres d'une catégorie avec la ligne des entêtes
-    with open(fichier_csv_cat, "w") as fichier_book:
+    with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
 
 
 # Fonction d'encodage d'un texte pouvant comporter des caractères spéciaux
 def encodage(texte):
-    texte = str(texte.encode(encoding="ascii", errors = "replace"))
-    texte = texte.replace('b', '', 1).replace(',', ' -').replace(';', ' - ').replace('?', '*')
+    #texte = str(texte.encode(encoding="ascii", errors = "replace")) texte.replace('b', '', 1).
+    texte = texte.replace(',', ' -').replace(';', ' - ').replace('?', '*')
     return(texte)    
 
 
@@ -63,15 +63,15 @@ def data_one_book(url, categorie):
         for tr in Prod_Info:
             info_liste.append(tr.find("td").text)
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
-        with open(categorie + '.csv', "a") as fichier_book:
+        with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
             fichier_book.write(
             url + ' , ' +                                        # url page livre
             info_liste[0] + ', ' +                               # Numéro UPC       
-            title.text.replace(',', '-') + ', ' +                # Titre : supression d'éventuelles virgules du titre
+            encodage(title.text) + ', ' +                # Titre : supression d'éventuelles virgules du titre
             info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
             info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
             info_liste[5] + ', ' +                               # Quantité en stock
-            encodage(product_description.text) + ', ' +          # Description - suppression virgules dans texte (remplacées par tirets)
+            encodage(product_description.text) + ', ' +          # Description - mise en forme par fonction encodage()
             category.text + ', ' +                               # Catégorie
             info_liste[6] + ', ' +                               # review rating
             image_url + '\n')                                    # url image livre
@@ -98,3 +98,4 @@ def Nombre_page_categorie(soup):
     else:
         Nb_page = 1
     return(Nb_page)
+
