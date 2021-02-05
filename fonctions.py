@@ -42,7 +42,9 @@ def Entete_csv_cat(fichier_csv_cat):
 
 # Fonction d'encodage d'un texte pouvant comporter des caractères spéciaux
 def encodage(texte):
-    texte = str(texte.encode(encoding="utf-8", errors = "strict"))
+    texte = str(texte.encode(encoding="ascii", errors = "replace"))
+    texte = texte.replace('b', '', 1).replace(',', ' -').replace(';', ' - ').replace('?', '*')
+
     return(texte)    
 
 
@@ -53,7 +55,7 @@ def data_one_book(url, categorie):
         soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml   
         title = soup_book.find("div", {"class" : "col-sm-6 product_main"}).find("h1") # On recherche le titre
         category = soup_book.find("ul", {"class" : "breadcrumb"}).findAll("a")[2] # On recherche la catégorie    
-        product_description = soup_book.find("article", {"class" : "product_page"}).findAll("p")[3] # On recherche le résumé du livre    
+        product_description = soup_book.find("article", {"class" : "product_page"}).findAll("p")[3] # On recherche le résumé du livre   
         link_image = soup_book.find("div", {"class" : "item active"}).find("img") # On recherche l'url de l'image
         image_url = "http://books.toscrape.com/" + link_image['src'].replace("../", '') # On établit l'url complètle    
         Prod_Info = soup_book.find("table", {"class" : "table table-striped"}).findAll("tr") # Recherche des données Product Information
@@ -70,7 +72,7 @@ def data_one_book(url, categorie):
             info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
             info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
             info_liste[5] + ', ' +                               # Quantité en stock
-            encodage(product_description.text).replace(',', '-') + ', ' +  # Description - suppression virgules dans texte (remplacées par tirets)
+            encodage(product_description.text) + ', ' +          # Description - suppression virgules dans texte (remplacées par tirets)
             category.text + ', ' +                               # Catégorie
             info_liste[6] + ', ' +                               # review rating
             image_url + '\n')                                    # url image livre

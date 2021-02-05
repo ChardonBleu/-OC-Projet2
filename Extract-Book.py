@@ -10,6 +10,9 @@ import bs4
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
+
+os.chdir('K:/OpenClassroom/Projet2/BrouillonP2')
+
 #  création du fichier csv pour une catégorie
 cat = 'poetry'
 f.Entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le ficheir csv
@@ -25,16 +28,14 @@ url_book_cat = []
 # Gestion des esceptions sur la requete
 valid_url, response = f.validation_url(url_cat)
 if valid_url:
-    # On prépare pour analyse 
+    #On prépare pour analyse 
     soup_cat = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
-    # Recherche s'il y a plusieurs pages
-    Nb_page = soup_cat.find("li", {"class" : "current"})
-    # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag
-    if isinstance(Nb_page, bs4.element.Tag):
-        # On récupère le nombre de pages:
-        Nb_page = int(Nb_page.text.strip()[-1])        
+    # Recherche du nombre de pages:
+    Nombre_pages = f.Nombre_page_categorie(soup_cat)
+
+    if Nombre_pages > 1:
         #Pour chaque page on récupère les url des livres dans une liste
-        for i in range(1,Nb_page+1):
+        for i in range(1, Nombre_pages + 1):
             # On met en forme l'url de la page i:
             url_cat_p = url_cat.replace("index.html", '') + "page-" + str(i) + ".html"
             valid_url_p, response = f.validation_url(url_cat_p)
@@ -43,21 +44,21 @@ if valid_url:
                 soup_cat = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
                 # On récupère ne liste les url des livres de cette catégorie
                 url_book_cat = f.list_book_cat(soup_cat, url_book_cat)
-
-
     else: # Si Nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
-        # On récupère ne liste les url des livres de cette catégorie
+        # On récupère en liste les url des livres de cette catégorie
         url_book_cat = f.list_book_cat(soup_cat, url_book_cat)
-        
-    print(url_book_cat)
-    print(len(url_book_cat))        
 
 
-# URL d'une page des détails d'un livre
-url = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
+# Récupération des données de tous les livres d'une catégorie
+for url in url_book_cat:
+    # URL d'une page des détails d'un livre
+    print(url)
+    print(type(url))
 
-f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le scv de la catégorie
-time.sleep(1)
+    f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le scv de la catégorie
+    time.sleep(1)
+
+print(len(url_book_cat))
 
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution
