@@ -2,10 +2,10 @@
 
 
 import requests # module qui permet d'interagir avec une url
-
-import bs4
+import bs4 # import tout bs4 pour test type objet 
 
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
+
 
 # Gestion des exceptions sur la requête
 def validation_url(url):
@@ -40,6 +40,12 @@ def Entete_csv_cat(fichier_csv_cat):
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
 
 
+# Fonction d'encodage d'un texte pouvant comporter des caractères spéciaux
+def encodage(texte):
+    texte = str(texte.encode(encoding="utf-8", errors = "strict"))
+    return(texte)    
+
+
 # Récupère les données d'un livre
 def data_one_book(url, categorie):
     valid_url, response = validation_url(url)
@@ -64,11 +70,11 @@ def data_one_book(url, categorie):
             info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
             info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
             info_liste[5] + ', ' +                               # Quantité en stock
-            product_description.text.replace(',', '-') + ', ' +  # Description - suppression virgules dans texte (remplacées par tirets)
+            encodage(product_description.text).replace(',', '-') + ', ' +  # Description - suppression virgules dans texte (remplacées par tirets)
             category.text + ', ' +                               # Catégorie
             info_liste[6] + ', ' +                               # review rating
             image_url + '\n')                                    # url image livre
-    
+   
 
 
 def list_book_cat(soup, liste):
@@ -79,3 +85,15 @@ def list_book_cat(soup, liste):
         a = div.find('a') 
         liste.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
     return(liste)
+
+
+def Nombre_page_categorie(soup):
+    # Recherche s'il y a plusieurs pages
+    Nb_page = soup.find("li", {"class" : "current"})
+    # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag
+    if isinstance(Nb_page, bs4.element.Tag):
+        # On récupère le nombre de pages:
+        Nb_page = int(Nb_page.text.strip()[-1])        
+    else:
+        Nb_page = 1
+    return(Nb_page)
