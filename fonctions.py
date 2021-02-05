@@ -3,16 +3,18 @@
 
 import requests # module qui permet d'interagir avec une url
 
+import bs4
+
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
 def validation_url(url):
-    # On gère les exceptions
+    # On gère les exceptions sur la requête
     url_valide = False
-    response = requests.models.Response()
+    resp = requests.models.Response()
     try:
-        response = requests.get(url, timeout = 6) # timeout permet d'arréter la requête si le réponse tarde trop
-        response.raise_for_status()
+        resp = requests.get(url, timeout = 3) # timeout permet d'arréter la requête si le réponse tarde trop
+        resp.raise_for_status()
     except requests.exceptions.InvalidSchema:
         print("L'adresse saisie est invalide")    
     except requests.exceptions.InvalidURL:
@@ -24,10 +26,10 @@ def validation_url(url):
     except requests.exceptions.ConnectionError: # Exception levée si il y problème de connexion au réseau
         print("La connexion au réseau a échouée")
     else: # si le code de statut est 200 on annonce que tout s'est bien passé
-        if response.ok: # le code de statut est 200
+        if resp.ok: # le code de statut est 200
             # print("La requete s'est bien passée. Status-code: ", response.status_code )
             url_valide = True
-    return(url_valide)
+    return(url_valide, resp)
 
 
 # Ecriture de la ligne des entête dans fichier csv 
@@ -38,8 +40,8 @@ def Entete_csv_cat(fichier_csv_cat):
 
 
 def data_one_book(url, categorie):
-    if validation_url(url):
-        response = requests.get(url)
+    valid_url, response = validation_url(url)
+    if valid_url:
         soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml   
         title = soup_book.find("div", {"class" : "col-sm-6 product_main"}).find("h1") # On recherche le titre
         category = soup_book.find("ul", {"class" : "breadcrumb"}).findAll("a")[2] # On recherche la catégorie    
