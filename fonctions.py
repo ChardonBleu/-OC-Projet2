@@ -10,8 +10,28 @@ import constantes as c
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
-# Gestion des exceptions sur la requête
 def validation_url(url):
+    """
+    Cette fonction permet de vérifier la validité de l'url portée en paramètre.
+    Elle essaye de lancer une requête avec le module requests.
+    Un message est renvoyé si une exception est levée. 
+    La fonction renvoie deux variables:
+
+    Args:
+        string : url de la page testée
+
+    Return:
+        bool : True si la raquête c'est bien passée, False dans le cas contraire
+        response : résultat de la requête. Résultat vide si la requête s'est mal passée
+
+    Raises:
+        InvalidSchema:  si l'url saisie est invalide. Il manque http:// ou https:// au début
+        InvalidURL:  l'url saisie n'est pas reconnue comme une url
+        Timeout:  si il n'y a aucun début de réponse à la requête au bout de 3s 
+        HTTPError: La page n'existe pas ou bien le serveur ne répond pas. Erreurs de type 40X ou 50X.
+        ConnectionError: problème de connexion au réseau
+
+    """
     # Par défaut la requête est invalidée
     valide = False
     # Initialisation de la réponse de la requête. Reste vide si la requête est invalidée
@@ -37,6 +57,18 @@ def validation_url(url):
 
 
 def navigation_dossier(type):
+    """
+    Cette fonction permet la navigation vers un dossier fichier_type.
+    Le paramètre de la fonction est une chaine de caractère.
+    Si le dossier n'existe pas encore il est créé.
+
+    Args: 
+        string: désigne le genre de fichiers rangés dans ce dossier. 'csv' ou bien 'img'
+
+    Raises: 
+        FileNotFoundError: dans le cas où le dossier n'existe pas encore. Il est alors créé.
+
+    """
     # try navigation vers dossier de sauvegarde
     try:
         os.chdir("fichiers_" + type)
@@ -46,17 +78,32 @@ def navigation_dossier(type):
         os.chdir("fichiers_" + type)
 
 
-
-# Ecriture de la ligne des entête dans fichier csv 
 def entete_csv_cat(fichier_csv_cat):
+    """
+    Cette fonction permet l'écriture de l'entête du fichier csv pour une catégorie de livre.
+
+    Args: 
+        string: nom du fichier avec son extension
+
+    """
     # Initialisatin du fichier csv des livres d'une catégorie avec la ligne des entêtes
+    navigation_dossier('csv') # Navigation vers le dossier fichiers_csv
     with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
     os.chdir(os.pardir)
 
 
-# Récupère les données d'un livre
 def data_one_book(url, categorie):
+    """
+    Cette fonction récupère les données d'un livre.
+    Elle stocke les données dans un fichier csv correspondant à la catégorie du livre.
+    Tous les fichiers csv sont rangés dans le dossier fichiers_csv.
+
+    Args:
+        string: url de la page des détails d'un livre
+        string: catégorie du livre
+
+    """
     valid_url, response = validation_url(url)
     response.encoding = response.apparent_encoding   # forçage de l'encodage vers utf-8 au lieu de ISO-8859-1
     if valid_url:
@@ -72,7 +119,7 @@ def data_one_book(url, categorie):
         for tr in prod_info:
             info_liste.append(tr.find("td").get_text())
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
-        navigation_dossier('csv')
+        navigation_dossier('csv')  # On se met dans le dossier fichiers_csv
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
             fichier_book.write(
             url + ' , ' +                                                            # url page livre
@@ -89,11 +136,18 @@ def data_one_book(url, categorie):
         os.chdir(os.pardir)
 
 
-
-   
-
-
 def list_book_cat(soup, liste):
+    """
+    Cette fonction stocke dans une objet de type liste les url des livres d'une catégorie.
+ 
+    Args: 
+        soup: objet BeautifulSoup résultant de la requête sur une des page des livres d'une catégorie
+        list: la liste des url déjà existantes.
+
+    Return: 
+        list: la liste des urlmise à jour.
+
+    """
     # Recherche des url de chaque livre
     book_links = soup.find_all("div", {'class' : 'image_container'})
     # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
@@ -104,6 +158,16 @@ def list_book_cat(soup, liste):
 
 
 def nombre_page_categorie(soup):
+    """
+    Cette fonction détermine le nombre de pages de livres pour une catégorie.
+
+    Args: 
+        soup: objet BeautifulSoup résultant de la requête sur la première page des livres d'un catégorie.
+
+    Return:
+        int:  nombre de pages.
+
+    """
     # Recherche s'il y a plusieurs pages
     nb_page = soup.find("li", {"class" : "current"})
     # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag

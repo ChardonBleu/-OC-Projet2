@@ -10,7 +10,6 @@ import constantes as c
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
-time1 = time.time()
 pbar = enlighten.Counter(total = 1000, desc = 'Colorized' , unit = 'ticks', color = 'seagreen1')
 # Construction de la liste des catégories à partir de la page accueuil du site
 url_site = c.URL_INDEX + "index.html"
@@ -30,9 +29,8 @@ if valid_url:
         url_cat = c.URL_INDEX + a['href']
        # print(cat)
         #  création du fichier csv pour une catégorie
-        f.navigation_dossier('csv') # Navigation vers le dossier fichiers_csv
         f.entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le fichier csv
-        # Initialisation de la lsite des url des livres pour cette catégorie
+        # Initialisation de la liste des url des livres pour cette catégorie
         url_book_cat = []
         valid_url, response = f.validation_url(url_cat)
         if valid_url:
@@ -61,12 +59,5 @@ if valid_url:
             f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le fichier scv de la catégorie
             time.sleep(0.5)
             pbar.update()
-
-        # print(len(url_book_cat))        
-
-
-time2 = time.time()
-print("durée d'excécution: ", round((time2 - time1)/60), "min")
-
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution
