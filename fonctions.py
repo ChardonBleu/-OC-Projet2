@@ -52,7 +52,8 @@ def entete_csv_cat(fichier_csv_cat):
     # Initialisatin du fichier csv des livres d'une catégorie avec la ligne des entêtes
     with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
-    os.pardir
+    os.chdir(os.pardir)
+
 
 # Récupère les données d'un livre
 def data_one_book(url, categorie):
@@ -71,8 +72,7 @@ def data_one_book(url, categorie):
         for tr in prod_info:
             info_liste.append(tr.find("td").get_text())
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
-        # try navigation vers dossier de sauvegarde
-        # si échec créer dossier puis navigation
+        navigation_dossier('csv')
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
             fichier_book.write(
             url + ' , ' +                                                            # url page livre
@@ -86,6 +86,7 @@ def data_one_book(url, categorie):
             info_liste[6] + ', ' +                                                   # review rating
             image_url + '\n')                                                        # url image livre
         # navigation vers le dossier parent
+        os.chdir(os.pardir)
 
 
 

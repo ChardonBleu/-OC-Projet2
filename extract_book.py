@@ -2,6 +2,7 @@
 
 import os # On importe le module os 
 import time  # module permettent de rajouter delai dans l'exécution du code pour éviter de faire saturer le site en requêtes
+import enlighten  # module permettant de visualiser l'avancée de l'excécution
 
 import fonctions as f
 import constantes as c
@@ -10,6 +11,7 @@ from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilem
 
 
 time1 = time.time()
+pbar = enlighten.Counter(total = 1000, desc = 'Colorized' , unit = 'ticks', color = 'seagreen1')
 # Construction de la liste des catégories à partir de la page accueuil du site
 url_site = c.URL_INDEX + "index.html"
 
@@ -26,11 +28,10 @@ if valid_url:
         a = li.find('a')
         cat = a.get_text().strip()
         url_cat = c.URL_INDEX + a['href']
-        print(cat)
+       # print(cat)
         #  création du fichier csv pour une catégorie
         f.navigation_dossier('csv') # Navigation vers le dossier fichiers_csv
         f.entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le fichier csv
-        
         # Initialisation de la lsite des url des livres pour cette catégorie
         url_book_cat = []
         valid_url, response = f.validation_url(url_cat)
@@ -59,9 +60,13 @@ if valid_url:
         for url in url_book_cat:
             f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le fichier scv de la catégorie
             time.sleep(0.5)
-        print(len(url_book_cat))
+            pbar.update()
+
+        # print(len(url_book_cat))        
+
 
 time2 = time.time()
 print("durée d'excécution: ", round((time2 - time1)/60), "min")
+
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution
