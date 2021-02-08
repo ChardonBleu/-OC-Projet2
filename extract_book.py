@@ -13,7 +13,7 @@ time1 = time.time()
 # Construction de la liste des catégories à partir de la page accueuil du site
 url_site = c.URL_INDEX + "index.html"
 
-#Initialisation de la liste des url
+# Initialisation de la liste des url
 liste_url_cat = []
 # Gestion des exceptions sur la requete
 valid_url, response = f.validation_url(url_site)
@@ -28,6 +28,7 @@ if valid_url:
         url_cat = c.URL_INDEX + a['href']
         print(cat)
         #  création du fichier csv pour une catégorie
+        f.navigation_dossier('csv') # Navigation vers le dossier fichiers_csv
         f.entete_csv_cat(cat + '.csv') # Ecriture des entêtes dans le fichier csv
         
         # Initialisation de la lsite des url des livres pour cette catégorie
@@ -50,7 +51,7 @@ if valid_url:
                         soup_cat = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
                         # On récupère en liste les url des livres de cette catégorie
                         url_book_cat = f.list_book_cat(soup_cat, url_book_cat)
-            else: # Si Nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
+            else: # Si nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
                 # On récupère en liste les url des livres de cette catégorie
                 url_book_cat = f.list_book_cat(soup_cat, url_book_cat)
 
