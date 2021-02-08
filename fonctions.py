@@ -43,7 +43,7 @@ def Entete_csv_cat(fichier_csv_cat):
 # Récupère les données d'un livre
 def data_one_book(url, categorie):
     valid_url, response = validation_url(url)
-    response.encoding = response.apparent_encoding   # 
+    response.encoding = response.apparent_encoding   # forçage de l'encodage vers utf-8 au lieu de ISO-8859-1
     if valid_url:
         soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml
         title = soup_book.find("div", {"class" : "col-sm-6 product_main"}).find("h1") # On recherche le titre
@@ -59,16 +59,16 @@ def data_one_book(url, categorie):
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
             fichier_book.write(
-            url + ' , ' +                                        # url page livre
-            info_liste[0] + ', ' +                               # Numéro UPC       
-            title.get_text().replace(',', '') + ', ' +                        # Titre : supression d'éventuelles virgules du titre
-            info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
-            info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
-            info_liste[5] + ', ' +                               # Quantité en stock
-            product_description.get_text().replace(',', '').replace(';', '') + ', ' +          # Description - mise en forme par fonction encodage()
-            category.get_text() + ', ' +                               # Catégorie
-            info_liste[6] + ', ' +                               # review rating
-            image_url + '\n')                                    # url image livre
+            url + ' , ' +                                                            # url page livre
+            info_liste[0] + ', ' +                                                   # Numéro UPC       
+            title.get_text().replace(',', '').replace(';', '') + ', ' +              # Titre : supression d'éventuelles virgules du titre
+            info_liste[3] + ', ' +                                                   # Prix avec taxes - mise ne forme du prix
+            info_liste[2] + ', ' +                                                   # Prix sans taxes - mise ne forme du prix
+            info_liste[5] + ', ' +                                                   # Quantité en stock
+            product_description.get_text().replace(',', '').replace(';', '') + ', ' +# Description - mise en forme par fonction encodage()
+            category.get_text() + ', ' +                                             # Catégorie
+            info_liste[6] + ', ' +                                                   # review rating
+            image_url + '\n')                                                        # url image livre
 
    
 

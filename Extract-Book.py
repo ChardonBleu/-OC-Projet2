@@ -8,7 +8,7 @@ import fonctions as f
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
-time1 = time.process_time()
+time1 = time.time()
 # Construction de la liste des catégories à partir de la page accueuil du site
 url_site = "http://books.toscrape.com/index.html"
 
@@ -58,7 +58,8 @@ if valid_url:
             f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le fichier scv de la catégorie
             time.sleep(0.5)
         print(len(url_book_cat))
-time2 = time.process_time()
-print(time2 - time1)
+
+time2 = time.time()
+print("durée d'excécution: ", round((time2 - time1)/60), "min")
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution
