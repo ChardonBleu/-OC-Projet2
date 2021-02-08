@@ -43,7 +43,7 @@ def Entete_csv_cat(fichier_csv_cat):
 # Récupère les données d'un livre
 def data_one_book(url, categorie):
     valid_url, response = validation_url(url)
-
+    response.encoding = response.apparent_encoding   # 
     if valid_url:
         soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml
         title = soup_book.find("div", {"class" : "col-sm-6 product_main"}).find("h1") # On recherche le titre
