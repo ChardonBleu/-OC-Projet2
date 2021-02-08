@@ -2,7 +2,9 @@
 
 
 import requests # module qui permet d'interagir avec une url
-import bs4 # import tout bs4 pour test type objet 
+import bs4 # import tout bs4 pour test type objet
+
+import constantes as c
 
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
@@ -34,7 +36,7 @@ def validation_url(url):
 
 
 # Ecriture de la ligne des entête dans fichier csv 
-def Entete_csv_cat(fichier_csv_cat):
+def entete_csv_cat(fichier_csv_cat):
     # Initialisatin du fichier csv des livres d'une catégorie avec la ligne des entêtes
     with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
@@ -50,11 +52,11 @@ def data_one_book(url, categorie):
         category = soup_book.find("ul", {"class" : "breadcrumb"}).find_all("a")[2] # On recherche la catégorie    
         product_description = soup_book.find("article", {"class" : "product_page"}).find_all("p")[3] # On recherche le résumé du livre   
         link_image = soup_book.find("div", {"class" : "item active"}).find("img") # On recherche l'url de l'image
-        image_url = "http://books.toscrape.com/" + link_image['src'].replace("../", '') # On établit l'url complètle    
-        Prod_Info = soup_book.find("table", {"class" : "table table-striped"}).find_all("tr") # Recherche des données Product Information
+        image_url = c.URL_INDEX + link_image['src'].replace("../", '') # On établit l'url complète    
+        prod_info = soup_book.find("table", {"class" : "table table-striped"}).find_all("tr") # Recherche des données Product Information
         # Pour chaque ligne de extract on crée une clé et une valeur dans Book_dico
         info_liste = []
-        for tr in Prod_Info:
+        for tr in prod_info:
             info_liste.append(tr.find("td").get_text())
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
@@ -83,14 +85,14 @@ def list_book_cat(soup, liste):
     return(liste)
 
 
-def Nombre_page_categorie(soup):
+def nombre_page_categorie(soup):
     # Recherche s'il y a plusieurs pages
-    Nb_page = soup.find("li", {"class" : "current"})
+    nb_page = soup.find("li", {"class" : "current"})
     # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag
-    if isinstance(Nb_page, bs4.element.Tag):
+    if isinstance(nb_page, bs4.element.Tag):
         # On récupère le nombre de pages:
-        Nb_page = int(Nb_page.get_text().strip()[-1])        
+        nb_page = int(nb_page.get_text().strip()[-1])        
     else:
-        Nb_page = 1
-    return(Nb_page)
+        nb_page = 1
+    return(nb_page)
 
