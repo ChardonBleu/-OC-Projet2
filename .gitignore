@@ -1,6 +1,5 @@
 env/
 __pycache__
-*.csv
 fichiers_csv/
 fichiers_img/
 README.md
