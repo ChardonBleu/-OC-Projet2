@@ -1,7 +1,6 @@
 # -*-coding:Utf-8 -*
 
 import os # On importe le module os 
-import requests # module qui permet d'interagir avec une url
 import time  # module permettent de rajouter delai dans l'exécution du code pour éviter de faire saturer le site en requêtes
 
 import fonctions as f
@@ -9,6 +8,7 @@ import fonctions as f
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
+time1 = time.process_time()
 # Construction de la liste des catégories à partir de la page accueuil du site
 url_site = "http://books.toscrape.com/index.html"
 
@@ -19,11 +19,11 @@ valid_url, response = f.validation_url(url_site)
 if valid_url:
     #On prépare pour analyse 
     soup_index = BeautifulSoup(response.text, "lxml") # Préparation pour l'analyse avec analyseur lxml
-    liste_li = soup_index.find('ul', {'class' : "nav nav-list"}).find('ul').findAll('li')
+    liste_li = soup_index.find('ul', {'class' : "nav nav-list"}).find('ul').find_all('li')
     # On boucle sur toutes les catégories
     for li in liste_li:
         a = li.find('a')
-        cat = a.text.strip()
+        cat = a.get_text().strip()
         url_cat = 'http://books.toscrape.com/' + a['href']
         print(cat)
         #  création du fichier csv pour une catégorie
@@ -31,7 +31,6 @@ if valid_url:
         
         # Initialisation de la lsite des url des livres pour cette catégorie
         url_book_cat = []
-        # Gestion des exceptions sur la requete
         valid_url, response = f.validation_url(url_cat)
         if valid_url:
             #On prépare pour analyse 
@@ -59,6 +58,7 @@ if valid_url:
             f.data_one_book(url, cat) # Ecriture des données pour ce livre dans le fichier scv de la catégorie
             time.sleep(0.5)
         print(len(url_book_cat))
-
+time2 = time.process_time()
+print(time2 - time1)
 
 os.system("pause") # met en pause pour éviter la fermeture de la fenêtre d'excécution

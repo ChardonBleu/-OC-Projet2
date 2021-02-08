@@ -40,47 +40,42 @@ def Entete_csv_cat(fichier_csv_cat):
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
 
 
-# Fonction d'encodage d'un texte pouvant comporter des caractères spéciaux
-def encodage(texte):
-    #texte = str(texte.encode(encoding="ascii", errors = "replace")) texte.replace('b', '', 1).
-    texte = texte.replace(',', ' -').replace(';', ' - ').replace('?', '*')
-    return(texte)    
-
-
 # Récupère les données d'un livre
 def data_one_book(url, categorie):
     valid_url, response = validation_url(url)
+
     if valid_url:
-        soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml   
+        soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml
         title = soup_book.find("div", {"class" : "col-sm-6 product_main"}).find("h1") # On recherche le titre
-        category = soup_book.find("ul", {"class" : "breadcrumb"}).findAll("a")[2] # On recherche la catégorie    
-        product_description = soup_book.find("article", {"class" : "product_page"}).findAll("p")[3] # On recherche le résumé du livre   
+        category = soup_book.find("ul", {"class" : "breadcrumb"}).find_all("a")[2] # On recherche la catégorie    
+        product_description = soup_book.find("article", {"class" : "product_page"}).find_all("p")[3] # On recherche le résumé du livre   
         link_image = soup_book.find("div", {"class" : "item active"}).find("img") # On recherche l'url de l'image
         image_url = "http://books.toscrape.com/" + link_image['src'].replace("../", '') # On établit l'url complètle    
-        Prod_Info = soup_book.find("table", {"class" : "table table-striped"}).findAll("tr") # Recherche des données Product Information
+        Prod_Info = soup_book.find("table", {"class" : "table table-striped"}).find_all("tr") # Recherche des données Product Information
         # Pour chaque ligne de extract on crée une clé et une valeur dans Book_dico
         info_liste = []
         for tr in Prod_Info:
-            info_liste.append(tr.find("td").text)
+            info_liste.append(tr.find("td").get_text())
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
             fichier_book.write(
             url + ' , ' +                                        # url page livre
             info_liste[0] + ', ' +                               # Numéro UPC       
-            encodage(title.text) + ', ' +                # Titre : supression d'éventuelles virgules du titre
+            title.get_text().replace(',', '') + ', ' +                        # Titre : supression d'éventuelles virgules du titre
             info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
             info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
             info_liste[5] + ', ' +                               # Quantité en stock
-            encodage(product_description.text) + ', ' +          # Description - mise en forme par fonction encodage()
-            category.text + ', ' +                               # Catégorie
+            product_description.get_text().replace(',', '').replace(';', '') + ', ' +          # Description - mise en forme par fonction encodage()
+            category.get_text() + ', ' +                               # Catégorie
             info_liste[6] + ', ' +                               # review rating
             image_url + '\n')                                    # url image livre
+
    
 
 
 def list_book_cat(soup, liste):
     # Recherche des url de chaque livre
-    book_links = soup.findAll("div", {'class' : 'image_container'})
+    book_links = soup.find_all("div", {'class' : 'image_container'})
     # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
     for div in book_links:
         a = div.find('a') 
@@ -94,7 +89,7 @@ def Nombre_page_categorie(soup):
     # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag
     if isinstance(Nb_page, bs4.element.Tag):
         # On récupère le nombre de pages:
-        Nb_page = int(Nb_page.text.strip()[-1])        
+        Nb_page = int(Nb_page.get_text().strip()[-1])        
     else:
         Nb_page = 1
     return(Nb_page)
