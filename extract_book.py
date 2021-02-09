@@ -93,6 +93,15 @@ def navigation_dossier(type):
         os.chdir("fichiers_" + type)
 
 
+def dossiers_images(cat):
+    try:
+        os.chdir(cat)
+    # si échec créer dossier puis navigation
+    except FileNotFoundError:
+        os.mkdir(cat)
+        os.chdir(cat)
+
+
 def entete_csv_cat(fichier_csv_cat):
     """
     Cette fonction permet l'écriture de l'entête du fichier csv pour une catégorie de livre.
@@ -120,14 +129,20 @@ def titre_fichier_image(titre):
         string: titre raccourci(maxi 5 mots), sans espace, sans ponctuation
 
     """
-    title_liste = titre.get_text().replace(',', '').replace(';', '').replace('’', '').replace(':', '').split()  # Nettoie le titre
+    # Liste de caractères indésirables dans le nom de fichier de l'image
+    filtre_carcateres = [',', ';', '’', '/', '\\', ':', '*', '?', '"', '<', '>', '|']
+    for caractere in filtre_carcateres:
+        titre = titre.replace(caractere, '')  # Nettoie le titre
+    title_liste = titre.split()
+    # Détermine le nombre de mots du nom de l'image
     if len(title_liste) > 10:
-        nb_mots_title_img = 5  # Détermine le nombre de mots du nom de l'image
+        nb_mots_title_img = 5
     elif len(title_liste) > 6:
-        nb_mots_title_img = ceil(len(title_liste)/2)  # Détermine le nombre de mots du nom de l'image
+        nb_mots_title_img = ceil(len(title_liste)/2)
     else:
         nb_mots_title_img = len(title_liste)
-    title_img = "_".join(title_liste[:nb_mots_title_img])  # Reconstruit un titre avec les 5 premiers mots et des tirets entre
+    # Reconstruit un titre avec maximum les 5 premiers mots et des tirets entre
+    title_img = "_".join(title_liste[:nb_mots_title_img])  
     return(title_img)
 
 
@@ -136,6 +151,7 @@ def data_one_book(url, categorie):
     Cette fonction récupère les données d'un livre.
     Elle stocke les données dans un fichier csv correspondant à la catégorie du livre.
     Tous les fichiers csv sont rangés dans le dossier fichiers_csv.
+    Toutes les images des livres sont rangées dans le dossier fichiers_img
 
     Args:
         string: url de la page des détails d'un livre
@@ -173,12 +189,15 @@ def data_one_book(url, categorie):
         # navigation vers le dossier parent
         os.chdir(os.pardir)
         # Mise en forme du titre court pour nom du fichier image
-        titre_image = titre_fichier_image(title) + '.jpg'
+        titre_image = titre_fichier_image(title.get_text()) + '.jpg'
         # navigation vers le dossier de stockage des images
         navigation_dossier('img')
+        dossiers_images(categorie)
         # téléchargerment de l'image
         wget.download(image_url, out=titre_image)
+        print()
         # navigation vers le dossier parent
+        os.chdir(os.pardir)
         os.chdir(os.pardir)
 
 
