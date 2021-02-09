@@ -9,7 +9,11 @@ Enregistrer l'ensemble des fichiers dans un dossier local de votre choix.
 
 Dans le terminal se mettre dans ce dossier local
 
-Créer un environnement virtuel: (https://docs.python.org/fr/3/library/venv.html?highlight=venv)
+Environnement virtuel
+---
+https://docs.python.org/fr/3/library/venv.html?highlight=venv
+
+Créer un environnement virtuel: 
 
 ```bash
 python -m venv env
@@ -24,10 +28,15 @@ sur mac ou linux:
 ```bash 
 source env/bin/activate 
 ```
+Packages
+---
 
 Puis installer les modules necessaires:
 ```bash 
 python -m pip -r requirements.txt
 ```
 
-Exectuter le fichier extract_book dans cet environnement virtuel.
+Exécution
+---
+
+Exécuter le fichier extract_book dans cet environnement virtuel.
