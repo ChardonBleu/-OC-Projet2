@@ -2,17 +2,20 @@
 
 
 import requests # module qui permet d'interagir avec une url
+import bs4 # import tout bs4 pour test type objet 
 
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
 
 
+# Gestion des exceptions sur la requête
 def validation_url(url):
-    # On gère les exceptions
-    url_valide = False
-    response = requests.models.Response()
+    # Par défaut la requête est invalidée
+    valide = False
+    # Initialisation de la réponse de la requête. Reste vide si la requête est invalidée
+    resp = requests.models.Response()
     try:
-        response = requests.get(url, timeout = 6) # timeout permet d'arréter la requête si le réponse tarde trop
-        response.raise_for_status()
+        resp = requests.get(url, timeout = 3) # timeout permet d'arréter la requête si le réponse tarde trop
+        resp.raise_for_status()
     except requests.exceptions.InvalidSchema:
         print("L'adresse saisie est invalide")    
     except requests.exceptions.InvalidURL:
@@ -23,11 +26,11 @@ def validation_url(url):
         print("La page n'existe pas ou bien le serveur ne répons pas. Erreur: ", e)
     except requests.exceptions.ConnectionError: # Exception levée si il y problème de connexion au réseau
         print("La connexion au réseau a échouée")
-    else: # si le code de statut est 200 on annonce que tout s'est bien passé
-        if response.ok: # le code de statut est 200
+    else: # si le code de statut est 200
+        if resp.ok: # le code de statut est 200
             # print("La requete s'est bien passée. Status-code: ", response.status_code )
-            url_valide = True
-    return(url_valide)
+            valide = True
+    return(valide, resp)
 
 
 # Ecriture de la ligne des entête dans fichier csv 
@@ -37,13 +40,21 @@ def Entete_csv_cat(fichier_csv_cat):
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
 
 
+# Fonction d'encodage d'un texte pouvant comporter des caractères spéciaux
+def encodage(texte):
+    texte = str(texte.encode(encoding="ascii", errors = "replace"))
+    texte = texte.replace('b', '', 1).replace(',', ' -').replace(';', ' - ').replace('?', '*')
+    return(texte)    
+
+
+# Récupère les données d'un livre
 def data_one_book(url, categorie):
-    if validation_url(url):
-        response = requests.get(url)
+    valid_url, response = validation_url(url)
+    if valid_url:
         soup_book = BeautifulSoup(response.text, 'lxml') # Préparation pour l'analyse avec analyseur lxml   
         title = soup_book.find("div", {"class" : "col-sm-6 product_main"}).find("h1") # On recherche le titre
         category = soup_book.find("ul", {"class" : "breadcrumb"}).findAll("a")[2] # On recherche la catégorie    
-        product_description = soup_book.find("article", {"class" : "product_page"}).findAll("p")[3] # On recherche le résumé du livre    
+        product_description = soup_book.find("article", {"class" : "product_page"}).findAll("p")[3] # On recherche le résumé du livre   
         link_image = soup_book.find("div", {"class" : "item active"}).find("img") # On recherche l'url de l'image
         image_url = "http://books.toscrape.com/" + link_image['src'].replace("../", '') # On établit l'url complètle    
         Prod_Info = soup_book.find("table", {"class" : "table table-striped"}).findAll("tr") # Recherche des données Product Information
@@ -60,10 +71,30 @@ def data_one_book(url, categorie):
             info_liste[3].replace('Â£', '') + ' £' + ', ' +      # Prix avec taxes - mise ne forme du prix
             info_liste[2].replace('Â£', '') + ' £' + ', ' +      # Prix sans taxes - mise ne forme du prix
             info_liste[5] + ', ' +                               # Quantité en stock
-            product_description.text.replace(',', '-') + ', ' +  # Description - suppression virgules dans texte (remplacées par tirets)
+            encodage(product_description.text) + ', ' +          # Description - suppression virgules dans texte (remplacées par tirets)
             category.text + ', ' +                               # Catégorie
             info_liste[6] + ', ' +                               # review rating
             image_url + '\n')                                    # url image livre
-    
+   
 
 
+def list_book_cat(soup, liste):
+    # Recherche des url de chaque livre
+    book_links = soup.findAll("div", {'class' : 'image_container'})
+    # Pour chaque livre on rajoute l'url du livre à la liste des url de cette catégorie
+    for div in book_links:
+        a = div.find('a') 
+        liste.append('http://books.toscrape.com/catalogue/' +  a['href'].replace("../", ''))
+    return(liste)
+
+
+def Nombre_page_categorie(soup):
+    # Recherche s'il y a plusieurs pages
+    Nb_page = soup.find("li", {"class" : "current"})
+    # Si il y a plusieurs pages, un élément a été trouvé et alors nb_page est du type bs4.element.Tag
+    if isinstance(Nb_page, bs4.element.Tag):
+        # On récupère le nombre de pages:
+        Nb_page = int(Nb_page.text.strip()[-1])        
+    else:
+        Nb_page = 1
+    return(Nb_page)
