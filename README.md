@@ -9,7 +9,7 @@ Enregistrer l'ensemble des fichiers dans un dossier local de votre choix.
 
 Dans le terminal se mettre dans ce dossier local
 
-Créer un environnement virtuel:
+Créer un environnement virtuel: (https://docs.python.org/fr/3/library/venv.html?highlight=venv)
 
 ```bash
 python -m venv env
