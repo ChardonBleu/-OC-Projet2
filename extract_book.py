@@ -8,19 +8,20 @@ import time  # Permet ajout delai dans exécution code pour éviter de faire sat
 import enlighten
 
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
+from math import ceil
 
 
-#************************************#
-#**********   CONSTANTES   **********#
-#************************************#
+# ************************************ #
+# **********   CONSTANTES   ********** #
+# ************************************ #
 
 
 URL_INDEX = 'http://books.toscrape.com/'
 
 
-#************************************#
-#**********   FONCTIONS   ***********#
-#************************************#
+# ************************************ #
+# **********   FONCTIONS   *********** #
+# ************************************ #
 
 
 def validation_url(url):
@@ -104,6 +105,29 @@ def entete_csv_cat(fichier_csv_cat):
     with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
         fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
     os.chdir(os.pardir)
+
+
+def titre_fichier_image(titre):
+    """
+    Cette fonction met en forme le titre du livre résupérées parmis les données sur la page du livre
+    Le résultat doit servir de nom de fichier au fichier image téléchargé
+
+    Args:
+        string : titre récupéré sur la page de description du livre
+
+    Return:
+        string: titre raccourci(maxi 5 mots), sans espace, sans ponctuation
+
+    """
+    title_liste = titre.replace(',', '').replace(';', '').replace('’', '').replace(':', '').split()  # Nettoie le titre
+    if len(title_liste) > 10:
+        nb_mots_title_img = 5  # Détermine le nombre de mots du nom de l'image
+    elif len(title_liste) > 6:
+        nb_mots_title_img = ceil(len(title_liste)/2)  # Détermine le nombre de mots du nom de l'image
+    else:
+        nb_mots_title_img = len(title_liste)
+    title_img = "_".join(title_liste[:nb_mots_title_img])  # Reconstruit un titre avec les 5 premiers mots et des tirets entre  
+    return(title_img)
 
 
 def data_one_book(url, categorie):
@@ -194,6 +218,13 @@ def nombre_page_categorie(soup):
 
 def cascade_extractions(url_site):
     """
+    Fonction contenant l'extraction successive des catégories des livres,
+    puis de tous livres de cette catégorie, répartis éventuellement surplusieurs page.
+    La fonction lance ensuite l'extraction des données de chaque livre
+    pour enregistrement dans des fichiers de stockage des données
+
+    Args:
+        string: url de la page d'acceuil du site
 
     """
     # Gestion des exceptions sur la requete
@@ -243,16 +274,16 @@ def cascade_extractions(url_site):
                 pbar.update()
 
 
-#************************************#
-#*************   MAIN   *************#
-#************************************#
+# ************************************ #
+# *************   MAIN   ************* #
+# ************************************ #
 
 
 if __name__ == "__main__":
 
     # Paramétrage bare de progression
     pbar = enlighten.Counter(total=1000, desc='Colorized', unit='ticks', color='seagreen1')
-    
+
     # Excécution programme principal
     url_site = URL_INDEX + "index.html"
     cascade_extractions(url_site)
