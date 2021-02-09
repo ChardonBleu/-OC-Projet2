@@ -1,14 +1,15 @@
 # -*-coding:Utf-8 -*
 
 
-import os
+import os  # module système pour navigation dans arborescence dossiers
 import requests  # module qui permet d'interagir avec une url
 import bs4  # import tout bs4 pour test type objet
 import time  # Permet ajout delai dans exécution code pour éviter de faire saturer le site en requêtes
-import enlighten
+import enlighten  # Pour la visualisation de la progression de l'extraction par bare de progression
+import wget  # Pour le téléchargement des images des fichiers
 
 from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
-from math import ceil
+from math import ceil  # Pour mettre ne forme le nom des fichiers image avec un nb limité de mots
 
 
 # ************************************ #
@@ -119,14 +120,14 @@ def titre_fichier_image(titre):
         string: titre raccourci(maxi 5 mots), sans espace, sans ponctuation
 
     """
-    title_liste = titre.replace(',', '').replace(';', '').replace('’', '').replace(':', '').split()  # Nettoie le titre
+    title_liste = titre.get_text().replace(',', '').replace(';', '').replace('’', '').replace(':', '').split()  # Nettoie le titre
     if len(title_liste) > 10:
         nb_mots_title_img = 5  # Détermine le nombre de mots du nom de l'image
     elif len(title_liste) > 6:
         nb_mots_title_img = ceil(len(title_liste)/2)  # Détermine le nombre de mots du nom de l'image
     else:
         nb_mots_title_img = len(title_liste)
-    title_img = "_".join(title_liste[:nb_mots_title_img])  # Reconstruit un titre avec les 5 premiers mots et des tirets entre  
+    title_img = "_".join(title_liste[:nb_mots_title_img])  # Reconstruit un titre avec les 5 premiers mots et des tirets entre
     return(title_img)
 
 
@@ -169,6 +170,14 @@ def data_one_book(url, categorie):
                 category.get_text() + ', ' +  # Catégorie
                 info_liste[6] + ', ' +  # review rating
                 image_url + '\n')  # url image livre
+        # navigation vers le dossier parent
+        os.chdir(os.pardir)
+        # Mise en forme du titre court pour nom du fichier image
+        titre_image = titre_fichier_image(title) + '.jpg'
+        # navigation vers le dossier de stockage des images
+        navigation_dossier('img')
+        # téléchargerment de l'image
+        wget.download(image_url, out=titre_image)
         # navigation vers le dossier parent
         os.chdir(os.pardir)
 
