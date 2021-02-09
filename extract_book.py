@@ -126,7 +126,7 @@ def titre_fichier_image(titre):
         string : titre récupéré sur la page de description du livre
 
     Return:
-        string: titre raccourci(maxi 5 mots), sans espace, sans ponctuation
+        string: titre raccourci(maxi 5 mots), sans carcatères non autorisés
 
     """
     # Liste de caractères indésirables dans le nom de fichier de l'image
@@ -149,6 +149,7 @@ def titre_fichier_image(titre):
 def data_one_book(url, categorie):
     """
     Cette fonction récupère les données d'un livre.
+    Elle transforme les données brutes extraites.
     Elle stocke les données dans un fichier csv correspondant à la catégorie du livre.
     Tous les fichiers csv sont rangés dans le dossier fichiers_csv.
     Toutes les images des livres sont rangées dans le dossier fichiers_img
@@ -163,15 +164,23 @@ def data_one_book(url, categorie):
     if valid_url:
         soup_book = bs4.BeautifulSoup(response.text, 'lxml')  # Préparation pour l'analyse avec analyseur lxml
         title = soup_book.find("div", {"class": "col-sm-6 product_main"}).find("h1")  # On recherche le titre
+        review_rating = soup_book.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]  # On cherche la notation
         category = soup_book.find("ul", {"class": "breadcrumb"}).find_all("a")[2]  # On recherche la catégorie
-        product_description = soup_book.find("article", {"class": "product_page"}).find_all("p")[3]  # On recherche le résumé du livre
+        product_description = soup_book.find("div", {"id": "product_description"})  # On recherche le résumé du livre
         link_image = soup_book.find("div", {"class": "item active"}).find("img")  # On recherche l'url de l'image
         image_url = URL_INDEX + link_image['src'].replace("../", '')  # On établit l'url complète
         prod_info = soup_book.find("table", {"class": "table table-striped"}).find_all("tr")  # Recherche des données Product Information
+        # On vérifie la présence d'une description.
+        if isinstance(product_description, bs4.element.Tag):
+            product_description = soup_book.find("div", {"id": "product_description"}).find_next("p").get_text()
+        else:  # Si pas de description on met RAS dans la colonne correspodante du fichier csv
+            product_description = "RAS"
         # Pour chaque ligne de extract on crée une clé et une valeur dans Book_dico
         info_liste = []
         for tr in prod_info:
             info_liste.append(tr.find("td").get_text())
+        # Dictionnaire de correspondance notation / nombre d'étoiles
+        notation = {'One': '*', 'Two': '**', 'Three': '***', 'Four': '****', 'Five': '*****'}
         # Ecriture dans le fichier csv des données demandées, dans l'ordre des entêtes
         navigation_dossier('csv')  # On se met dans le dossier fichiers_csv
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
@@ -182,10 +191,10 @@ def data_one_book(url, categorie):
                 info_liste[3] + ', ' +  # Prix avec taxes
                 info_liste[2] + ', ' +  # Prix sans taxes
                 info_liste[5] + ', ' +  # Quantité en stock
-                product_description.get_text().replace(',', '').replace(';', '') + ', ' +  # Description
+                product_description.replace(',', ' ').replace(';', '-') + ', ' +  # Description
                 category.get_text() + ', ' +  # Catégorie
-                info_liste[6] + ', ' +  # review rating
-                image_url + '\n')  # url image livre
+                notation[review_rating['class'][1]] + ', ' +  # review rating
+                image_url + ' \n')  # url image livre
         # navigation vers le dossier parent
         os.chdir(os.pardir)
         # Mise en forme du titre court pour nom du fichier image
@@ -193,9 +202,13 @@ def data_one_book(url, categorie):
         # navigation vers le dossier de stockage des images
         navigation_dossier('img')
         dossiers_images(categorie)
-        # téléchargerment de l'image
-        wget.download(image_url, out=titre_image)
-        print()
+        # On télécharge l'image si elle n'existe pas encore. Sinon on passe
+        try:
+            with open(titre_image, "rb"):
+                pass
+        except FileNotFoundError:            
+            # téléchargerment de l'image
+            wget.download(image_url, out=titre_image)
         # navigation vers le dossier parent
         os.chdir(os.pardir)
         os.chdir(os.pardir)
