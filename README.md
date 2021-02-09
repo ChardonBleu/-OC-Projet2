@@ -5,19 +5,29 @@ Il extrait les données des 1000 livres du site et les enregistre dans des fichi
 Tous ces fichiers csv sont rangés dans un dossier fichiers_csv dans le même répertoire que le fichier extract_book.py.
 Les images des livres sont également téléchargées et stockées dans un dossier fichiers_img dans ce même répertoire.
 
-
 Enregistrer l'ensemble des fichiers dans un dossier local de votre choix.
 
 Dans le terminal se mettre dans ce dossier local
 
 Créer un environnement virtuel:
+
+```bash
 python -m venv env
+```
 
 Activer cet environnement virtuel:
-sur windows dans Visual Studio Code: . env/Scripts/activate
-sur mac ou linux: source env/bin/activate
+sur windows dans Visual Studio Code: 
+```bash 
+. env/Scripts/activate 
+```
+sur mac ou linux: 
+```bash 
+source env/bin/activate 
+```
 
 Puis installer les modules necessaires:
-python -m pip -r requirements.txt 
+```bash 
+python -m pip -r requirements.txt
+```
 
 Exectuter le fichier extract_book dans cet environnement virtuel.
