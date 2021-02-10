@@ -4,12 +4,14 @@
 import os  # module système pour navigation dans arborescence dossiers
 import requests  # module qui permet d'interagir avec une url
 import bs4  # import tout bs4 pour test type objet
-import time  # Permet ajout delai dans exécution code pour éviter de faire saturer le site en requêtes
-import enlighten  # Pour la visualisation de la progression de l'extraction par bare de progression
+import time  # Pour ajout delai dans exécution code pour éviter saturer site
+import enlighten  # Pour visu progression extraction
 import wget  # Pour le téléchargement des images des fichiers
 
-from bs4 import BeautifulSoup  # bibliothèque qui permet de récupérer facilement des informations à partir de pages Web
-from math import ceil  # Pour mettre ne forme le nom des fichiers image avec un nb limité de mots
+# pour récupérer facilement des informations à partir de pages Web
+from bs4 import BeautifulSoup
+# Pour mettre en forme le nom des fichiers image avec un nb limité de mots
+from math import ceil  
 
 
 # ************************************ #
@@ -30,7 +32,7 @@ def validation_url(url):
     Cette fonction permet de vérifier la validité de l'url portée en paramètre.
     Elle essaye de lancer une requête avec le module requests.
     Un message est renvoyé si une exception est levée.
-    La fonction renvoie deux variables:
+    La fonction renvoie deux variables.
 
     Args:
         string : url de la page testée
@@ -52,7 +54,7 @@ def validation_url(url):
     # Initialisation de la réponse de la requête. Reste vide si la requête est invalidée
     resp = requests.models.Response()
     try:
-        resp = requests.get(url, timeout=3)  # timeout permet d'arréter la requête si le réponse tarde trop
+        resp = requests.get(url, timeout=3)  # timeout permet d'arreter la requête si le réponse tarde trop
         resp.raise_for_status()
     except requests.exceptions.InvalidSchema:
         print("L'adresse saisie est invalide")
@@ -62,7 +64,7 @@ def validation_url(url):
         print('La requête est trop longue. Le site ne répond pas.')
     except requests.exceptions.HTTPError as e:  # Erreur de type 40X ou 50X
         print("La page n'existe pas ou bien le serveur ne répons pas. Erreur: ", e)
-    except requests.exceptions.ConnectionError:  # Exception levée si il y problème de connexion au réseau
+    except requests.exceptions.ConnectionError:  # Exception levée si  problème de connexion au réseau
         print("La connexion au réseau a échouée")
     else:  # si le code de statut est 200
         if resp.ok:  # le code de statut est 200
@@ -94,6 +96,19 @@ def navigation_dossier(type):
 
 
 def dossiers_images(cat):
+    """
+    Cette fonction permet la navigation vers un dossier image
+    associé à la catégorie de livre.
+    Le paramètre de la fonction indique la catégorie de livres.
+    Si le dossier n'existe pas encore il est créé.
+
+    Args:
+        string: la catégorie de livre
+
+    Raises:
+        FileNotFoundError: dans le cas où le dossier n'existe pas encore. Il est alors créé.
+
+    """
     try:
         os.chdir(cat)
     # si échec créer dossier puis navigation
@@ -110,16 +125,18 @@ def entete_csv_cat(fichier_csv_cat):
         string: nom du fichier avec son extension
 
     """
-    # Initialisatin du fichier csv des livres d'une catégorie avec la ligne des entêtes
+    # Initialisation du fichier csv des livres d'une catégorie avec la ligne des entêtes
     navigation_dossier('csv')  # Navigation vers le dossier fichiers_csv
     with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
-        fichier_book.write("product_page_url, universal_ product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n")
+        fichier_book.write("product_page_url, universal_ product_code (upc), " +
+                           "title, price_including_tax, price_excluding_tax, number_available, " +
+                           "product_description, category, review_rating, image_url\n")
     os.chdir(os.pardir)
 
 
 def titre_fichier_image(titre):
     """
-    Cette fonction met en forme le titre du livre résupérées parmis les données sur la page du livre
+    Cette fonction met en forme le titre du livre résupéré parmis les données sur la page du livre
     Le résultat doit servir de nom de fichier au fichier image téléchargé
 
     Args:
@@ -142,7 +159,7 @@ def titre_fichier_image(titre):
     else:
         nb_mots_title_img = len(title_liste)
     # Reconstruit un titre avec maximum les 5 premiers mots et des tirets entre
-    title_img = "_".join(title_liste[:nb_mots_title_img])  
+    title_img = "_".join(title_liste[:nb_mots_title_img])
     return(title_img)
 
 
@@ -164,18 +181,19 @@ def data_one_book(url, categorie):
     if valid_url:
         soup_book = bs4.BeautifulSoup(response.text, 'lxml')  # Préparation pour l'analyse avec analyseur lxml
         title = soup_book.find("div", {"class": "col-sm-6 product_main"}).find("h1")  # On recherche le titre
-        review_rating = soup_book.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]  # On cherche la notation
+        review_rating = soup_book.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]  # On recherche la notation
         category = soup_book.find("ul", {"class": "breadcrumb"}).find_all("a")[2]  # On recherche la catégorie
         product_description = soup_book.find("div", {"id": "product_description"})  # On recherche le résumé du livre
         link_image = soup_book.find("div", {"class": "item active"}).find("img")  # On recherche l'url de l'image
-        image_url = URL_INDEX + link_image['src'].replace("../", '')  # On établit l'url complète
         prod_info = soup_book.find("table", {"class": "table table-striped"}).find_all("tr")  # Recherche des données Product Information
+        # Traitement des données extraites
+        image_url = URL_INDEX + link_image['src'].replace("../", '')  # On établit l'url complète
         # On vérifie la présence d'une description.
         if isinstance(product_description, bs4.element.Tag):
             product_description = soup_book.find("div", {"id": "product_description"}).find_next("p").get_text()
         else:  # Si pas de description on met RAS dans la colonne correspodante du fichier csv
             product_description = "RAS"
-        # Pour chaque ligne de extract on crée une clé et une valeur dans Book_dico
+        # Pour chaque ligne de prod_info on récupère le texte entre les balises <td>. On le met dans info_liste
         info_liste = []
         for tr in prod_info:
             info_liste.append(tr.find("td").get_text())
@@ -206,7 +224,7 @@ def data_one_book(url, categorie):
         try:
             with open(titre_image, "rb"):
                 pass
-        except FileNotFoundError:            
+        except FileNotFoundError:
             # téléchargerment de l'image
             wget.download(image_url, out=titre_image)
         # navigation vers le dossier parent
@@ -219,11 +237,11 @@ def list_book_cat(soup, liste):
     Cette fonction stocke dans une objet de type liste les url des livres d'une catégorie.
 
     Args:
-        soup: objet BeautifulSoup résultant de la requête sur une des page des livres d'une catégorie
+        soup: objet BeautifulSoup résultant de la requête sur une des pages des livres d'une catégorie
         list: la liste des url déjà existantes.
 
     Return:
-        list: la liste des urlmise à jour.
+        list: la liste des url mise à jour.
 
     """
     # Recherche des url de chaque livre
@@ -237,13 +255,13 @@ def list_book_cat(soup, liste):
 
 def nombre_page_categorie(soup):
     """
-    Cette fonction détermine le nombre de pages de livres pour une catégorie.
+    Cette fonction détermine le nombre de pages pour une catégorie.
 
     Args:
-        soup: objet BeautifulSoup résultant de la requête sur la première page des livres d'un catégorie.
+        soup: objet BeautifulSoup résultant de la requête sur la première page d'une catégorie.
 
     Return:
-        int:  nombre de pages.
+        int: nombre de pages.
 
     """
     # Recherche s'il y a plusieurs pages
@@ -260,34 +278,31 @@ def nombre_page_categorie(soup):
 def cascade_extractions(url_site):
     """
     Fonction contenant l'extraction successive des catégories des livres,
-    puis de tous livres de cette catégorie, répartis éventuellement surplusieurs page.
-    La fonction lance ensuite l'extraction des données de chaque livre
-    pour enregistrement dans des fichiers de stockage des données
+    puis de tous livres de cette catégorie, répartis éventuellement sur plusieurs page.
+    La fonction lance ensuite l'extraction des données de chaque livre.
 
     Args:
         string: url de la page d'acceuil du site
 
     """
-    # Gestion des exceptions sur la requete
+    # Gestion des exceptions sur la requête
     valid_url, response = validation_url(url_site)
     # Construction de la liste des catégories à partir de la page accueuil du site
     if valid_url:
         # On prépare pour analyse
-        soup_index = BeautifulSoup(response.text, "lxml")  # Préparation pour analyse avec analyseur lxml
+        soup_index = BeautifulSoup(response.text, "lxml")
         liste_li = soup_index.find('ul', {'class': "nav nav-list"}).find('ul').find_all('li')
         # On boucle sur toutes les catégories
         for li in liste_li:
             a = li.find('a')
             cat = a.get_text().strip()
             url_cat = URL_INDEX + a['href']
-            # print(cat)
             # Création du fichier csv pour une catégorie
             entete_csv_cat(cat + '.csv')  # Ecriture entêtes dans fichier csv
             # Initialisation de la liste des url des livres pour cette catégorie
             url_book_cat = []
             valid_url, response = validation_url(url_cat)
             if valid_url:
-                # On prépare pour analyse
                 soup_cat = BeautifulSoup(response.text, "lxml")  # Préparation pour analyse
                 # Recherche du nombre de pages:
                 nombre_pages = nombre_page_categorie(soup_cat)
@@ -300,7 +315,7 @@ def cascade_extractions(url_site):
                         valid_url_p, response = validation_url(url_cat_p)
                         if valid_url_p:
                             # On prépare pour analyse
-                            soup_cat = BeautifulSoup(response.text, "lxml")  # Préparation pour analyse
+                            soup_cat = BeautifulSoup(response.text, "lxml")
                             # On récupère en liste les url des livres de cette catégorie
                             url_book_cat = list_book_cat(soup_cat, url_book_cat)
                 else:  # Si nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
@@ -311,8 +326,8 @@ def cascade_extractions(url_site):
             for url in url_book_cat:
                 # Ecriture des données pour ce livre dans le fichier scv de la catégorie
                 data_one_book(url, cat)
-                time.sleep(0.5)
-                pbar.update()
+                time.sleep(0.5)  # Delai imposé pour éviter blocage du site
+                pbar.update()  # barre de progression de l'extraction des 1000 livres
 
 
 # ************************************ #
