@@ -8,8 +8,6 @@ import time  # Pour ajout delai dans exécution code pour éviter saturer site
 import enlighten  # Pour visu progression extraction
 import wget  # Pour le téléchargement des images des fichiers
 
-# pour récupérer facilement des informations à partir de pages Web
-from bs4 import BeautifulSoup
 # Pour mettre en forme le nom des fichiers image avec un nb limité de mots
 from math import ceil  
 
@@ -55,7 +53,7 @@ def validation_url(url):
     resp = requests.models.Response()
     try:
         resp = requests.get(url, timeout=3)  # timeout permet d'arreter la requête si le réponse tarde trop
-        resp.raise_for_status()
+        resp.raise_for_status()  # Lève l'exception HTTPError
     except requests.exceptions.InvalidSchema:
         print("L'adresse saisie est invalide")
     except requests.exceptions.InvalidURL:
@@ -290,7 +288,7 @@ def cascade_extractions(url_site):
     # Construction de la liste des catégories à partir de la page accueuil du site
     if valid_url:
         # On prépare pour analyse
-        soup_index = BeautifulSoup(response.text, "lxml")
+        soup_index = bs4.BeautifulSoup(response.text, "lxml")
         liste_li = soup_index.find('ul', {'class': "nav nav-list"}).find('ul').find_all('li')
         # On boucle sur toutes les catégories
         for li in liste_li:
@@ -303,7 +301,7 @@ def cascade_extractions(url_site):
             url_book_cat = []
             valid_url, response = validation_url(url_cat)
             if valid_url:
-                soup_cat = BeautifulSoup(response.text, "lxml")  # Préparation pour analyse
+                soup_cat = bs4.BeautifulSoup(response.text, "lxml")  # Préparation pour analyse
                 # Recherche du nombre de pages:
                 nombre_pages = nombre_page_categorie(soup_cat)
 
@@ -315,7 +313,7 @@ def cascade_extractions(url_site):
                         valid_url_p, response = validation_url(url_cat_p)
                         if valid_url_p:
                             # On prépare pour analyse
-                            soup_cat = BeautifulSoup(response.text, "lxml")
+                            soup_cat = bs4.BeautifulSoup(response.text, "lxml")
                             # On récupère en liste les url des livres de cette catégorie
                             url_book_cat = list_book_cat(soup_cat, url_book_cat)
                 else:  # Si nb_page n'est pas du type bs4.elemnt.Tag, c'est qu'il n'y a qu'une page
