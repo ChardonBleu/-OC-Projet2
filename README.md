@@ -40,3 +40,7 @@ Exécution
 ---
 
 Exécuter le fichier extract_book dans cet environnement virtuel.
+
+```bash 
+python __main__.py
+```
