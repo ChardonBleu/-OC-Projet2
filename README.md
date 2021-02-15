@@ -39,7 +39,7 @@ python -m pip -r requirements.txt
 Exécution
 ---
 
-Exécuter le fichier __main__.py dans cet environnement virtuel.
+Exécuter le fichier principal dans cet environnement virtuel.
 
 ```bash 
 python __main__.py
