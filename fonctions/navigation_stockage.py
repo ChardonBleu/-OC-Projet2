@@ -7,9 +7,9 @@ import os  # module système pour navigation dans arborescence dossiers
 from math import ceil
 
 
-# ********************************************************************************* #
-# **********   Navigation vers les fichiers de sauvegarde des données   *********** #
-# ********************************************************************************* #
+# ************************************************************************* #
+# ******   Navigation vers les fichiers de sauvegarde des données   ******* #
+# ************************************************************************* #
 
 
 def navigation_dossier(type):

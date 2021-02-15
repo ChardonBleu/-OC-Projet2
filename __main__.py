@@ -1,7 +1,7 @@
 # -*-coding:Utf-8 -*
 
 
-import os  # module système pour navigation dans arborescence dossiers
+import os
 import enlighten  # Pour visu progression extraction
 
 from settings.constantes import URL_INDEX

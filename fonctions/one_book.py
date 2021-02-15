@@ -11,9 +11,9 @@ from fonctions.requete import validation_url
 from fonctions import navigation_stockage as nav
 
 
-# ************************************************************************** #
-# **********   Extraction et sauvegarde des données d'un livre   *********** #
-# ************************************************************************** #
+# ************************************************************************ #
+# *********   Extraction et sauvegarde des données d'un livre   ********** #
+# ************************************************************************ #
 
 
 def data_one_book(url, categorie):
@@ -67,16 +67,16 @@ def data_one_book(url, categorie):
         nav.navigation_dossier('csv')
         with open(categorie + '.csv', "a", encoding="utf-8") as fichier_book:
             fichier_book.write(
-                url + ' , ' +  # url page livre
+                url + ' , ' +
                 info_liste[0] + ', ' +  # Numéro UPC
-                title.get_text().replace(',', '').replace(';', '') + ', ' +  # Titre
+                title.get_text().replace(',', '').replace(';', '') + ', ' +
                 info_liste[3] + ', ' +  # Prix avec taxes
                 info_liste[2] + ', ' +  # Prix sans taxes
                 info_liste[5] + ', ' +  # Quantité en stock
-                product_description.replace(',', ' ').replace(';', '-') + ', ' +  # Description
-                category.get_text() + ', ' +  # Catégorie
-                notation[review_rating['class'][1]] + ', ' +  # review rating
-                image_url + ' \n')  # url image livre
+                product_description.replace(',', ' ').replace(';', '-') + ', ' +
+                category.get_text() + ', ' +
+                notation[review_rating['class'][1]] + ', ' +
+                image_url + ' \n')
         # navigation vers le dossier parent
         os.chdir(os.pardir)
         # Mise en forme du titre court pour nom du fichier image
@@ -89,7 +89,6 @@ def data_one_book(url, categorie):
             with open(titre_image, "rb"):
                 pass
         except FileNotFoundError:
-            # téléchargerment de l'image
             wget.download(image_url, out=titre_image)
         # navigation vers le dossier parent
         os.chdir(os.pardir)

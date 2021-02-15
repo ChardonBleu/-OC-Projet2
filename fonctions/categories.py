@@ -4,7 +4,6 @@
 import os  # module système pour navigation dans arborescence dossiers
 import bs4  # import tout bs4 pour test type objet
 import time  # Pour ajout delai dans exécution code pour éviter saturer site
-import enlighten  # Pour visu progression extraction
 
 from settings.constantes import URL_INDEX
 
@@ -27,7 +26,7 @@ def entete_csv_cat(fichier_csv_cat):
         string: nom du fichier avec son extension
 
     """
-    navigation_dossier('csv')  # Navigation vers le dossier fichiers_csv
+    navigation_dossier('csv')
     with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
         fichier_book.write("product_page_url, " +
                            "universal_ product_code (upc), " +
@@ -55,7 +54,6 @@ def list_book_cat(soup, liste):
         list: la liste des url mise à jour.
 
     """
-    # Recherche des url de chaque livre
     book_links = soup.find_all("div", {'class': 'image_container'})
     # on rajoute l'url de chaque livre à la liste des url de cette catégorie
     for div in book_links:
@@ -111,7 +109,7 @@ def cascade_extractions(url_site, bar):
             cat = a.get_text().strip()
             url_cat = URL_INDEX + a['href']
             # Création du fichier csv pour une catégorie
-            entete_csv_cat(cat + '.csv')  # Ecriture entêtes dans fichier csv
+            entete_csv_cat(cat + '.csv')
             # Initialisation liste des url des livres pour cette catégorie
             url_book_cat = []
             valid_url, response = validation_url(url_cat)
@@ -127,13 +125,10 @@ def cascade_extractions(url_site, bar):
                         url_cat_p = url_cat.replace("index.html", '') + "page-" + str(i) + ".html"
                         valid_url_p, response = validation_url(url_cat_p)
                         if valid_url_p:
-                            # On prépare pour analyse
                             soup_cat = bs4.BeautifulSoup(response.text, "lxml")
-                            # On récupère en liste les url des livres de cette catégorie
+                            # On récupère les url des livres de cette catégorie
                             url_book_cat = list_book_cat(soup_cat, url_book_cat)
-                # Si nb_page n'est pas du type bs4.elemnt.Tag: il n'y a qu'une page
                 else:
-                    # On récupère en liste les url des livres de cette catégorie
                     url_book_cat = list_book_cat(soup_cat, url_book_cat)
 
             # Récupération des données de tous les livres d'une catégorie
