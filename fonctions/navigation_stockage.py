@@ -88,26 +88,3 @@ def titre_fichier_image(titre):
     # Reconstruit un titre avec maximum les 5 premiers mots et des underscore
     title_img = "_".join(title_liste[:nb_mots_title_img])
     return(title_img)
-
-
-def entete_csv_cat(fichier_csv_cat):
-    """
-    Cette fonction permet l'écriture de l'entête du fichier csv pour une
-    catégorie de livre.
-
-    Args:
-        string: nom du fichier avec son extension
-
-    """
-    navigation_dossier('csv')  # Navigation vers le dossier fichiers_csv
-    with open(fichier_csv_cat, "w", encoding="utf-8") as fichier_book:
-        fichier_book.write("product_page_url, " +
-                           "universal_ product_code (upc), " +
-                           "title, " +
-                           "price_including_tax, " +
-                           "price_excluding_tax, " +
-                           "number_available, " +
-                           "product_description, " +
-                           "category, " +
-                           "review_rating, image_url\n")
-    os.chdir(os.pardir)

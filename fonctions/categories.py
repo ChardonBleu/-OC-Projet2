@@ -133,7 +133,7 @@ def cascade_extractions(url_site, bar):
 
             # Récupération des données de tous les livres d'une catégorie
             for url in url_book_cat:
-                # Ecriture des données pour ce livre
+                # Ecriture des données pour ce livres
                 data_one_book(url, cat)
                 time.sleep(0.5)  # Delai imposé pour éviter blocage du site
                 bar.update()
