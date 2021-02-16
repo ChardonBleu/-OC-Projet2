@@ -89,7 +89,7 @@ def data_one_book(url, categorie):
             with open(titre_image, "rb"):
                 pass
         except FileNotFoundError:
-            wget.download(image_url, out=titre_image)
+            nav.telecharge_image(image_url, titre_image)
         # navigation vers le dossier parent
         os.chdir(os.pardir)
         os.chdir(os.pardir)

@@ -2,6 +2,8 @@
 
 
 import os  # module système pour navigation dans arborescence dossiers
+import wget  # Pour le téléchargement des images des fichiers
+import urllib
 
 # Pour mettre en forme le nom des fichiers image avec un nb limité de mots
 from math import ceil
@@ -88,3 +90,11 @@ def titre_fichier_image(titre):
     # Reconstruit un titre avec maximum les 5 premiers mots et des underscore
     title_img = "_".join(title_liste[:nb_mots_title_img])
     return(title_img)
+
+
+def telecharge_image(img_url, img_titre):
+    try:
+        wget.download(img_url, out=img_titre)
+    except urllib.error.ContentTooShortError:
+        print ('La connexion au réseau est instable. Reloading...')
+        telecharge_image(img_url, img_titre)
